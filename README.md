@@ -26,7 +26,7 @@ sudo ufw reload &&
 sudo systemctl enable fail2ban &&
 sudo systemctl start fail2ban
 ```
-# Step 1: Update Package Lists
+## Step 1: Update Package Lists
 ```
 sudo apt-get update
 ```
