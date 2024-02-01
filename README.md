@@ -2,6 +2,25 @@
 
 To enhance the security of your GreenArrowEmail server, you can follow these steps to install and configure UFW (Uncomplicated Firewall) and Fail2Ban. This will help protect your server from unauthorized access and attacks.
 
+# TLDR - Here it is in a single command
+```
+sudo apt-get update && \
+sudo apt-get install ufw fail2ban -y && \
+sudo ufw enable && \
+sudo ufw default deny incoming && \
+sudo ufw default allow outgoing && \
+sudo ufw allow 25/tcp && \
+sudo ufw allow 587/tcp && \
+sudo ufw allow 628/tcp && \
+sudo ufw allow 629/tcp && \
+sudo ufw allow 110/tcp && \
+sudo ufw allow 80/tcp && \
+sudo ufw allow 443/tcp && \
+sudo ufw allow from 127.0.0.1 && \
+sudo ufw reload && \
+sudo systemctl enable fail2ban && \
+sudo systemctl start fail2ban
+```
 # Step 1: Update Package Lists
 sudo apt-get update
 
