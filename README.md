@@ -24,15 +24,15 @@ sudo systemctl start fail2ban
 # Step 1: Update Package Lists
 sudo apt-get update
 
-# Step 2: Install UFW and Fail2Ban
+## Step 2: Install UFW and Fail2Ban
 sudo apt-get install ufw fail2ban -y
 
-# Step 3: Configure UFW
+## Step 3: Configure UFW
 sudo ufw enable
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
-# Open the necessary ports for GreenArrow
+## Open the necessary ports for GreenArrow
 sudo ufw allow 25/tcp
 sudo ufw allow 587/tcp
 sudo ufw allow 628/tcp
@@ -41,13 +41,13 @@ sudo ufw allow 110/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
 
-# Allow all traffic from localhost
+## Allow all traffic from localhost
 sudo ufw allow from 127.0.0.1
 
-# Reload UFW to apply the changes
+## Reload UFW to apply the changes
 sudo ufw reload
 
-# Step 4: Install and Start Fail2Ban
+## Step 4: Install and Start Fail2Ban
 sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
 
