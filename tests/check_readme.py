@@ -124,7 +124,8 @@ def main():
             )
             after = configuration_hashes()
             changed = [
-                path for path in before.keys() | after.keys()
+                path
+                for path in before.keys() | after.keys()
                 if before.get(path) != after.get(path)
             ]
             assert not changed, f"Dry run {resolved} changed configuration: {changed}"
