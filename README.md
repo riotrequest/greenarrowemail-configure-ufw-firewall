@@ -52,11 +52,11 @@ read -r -p 'Trusted administrator IP or CIDR: ' ADMIN_SOURCE
 : "${SSH_PORT:?Enter the actual SSH port}"
 : "${ADMIN_SOURCE:?Enter your trusted administrator source}"
 
-sudo ufw --dry-run insert 1 allow in proto tcp from "$ADMIN_SOURCE" to any port "$SSH_PORT" comment 'SSH administration'
-sudo ufw insert 1 allow in proto tcp from "$ADMIN_SOURCE" to any port "$SSH_PORT" comment 'SSH administration'
+sudo ufw --dry-run prepend allow in proto tcp from "$ADMIN_SOURCE" to any port "$SSH_PORT" comment 'SSH administration'
+sudo ufw prepend allow in proto tcp from "$ADMIN_SOURCE" to any port "$SSH_PORT" comment 'SSH administration'
 ```
 
-**Stop if either UFW command fails.** The dry run validates the rule without applying it. Inserting the real rule first avoids an earlier user deny rule taking precedence. Repeat for other administrator sources, including IPv6 sources if applicable. Do not use `any` or a catch-all CIDR as the administrator source unless public SSH access is your deliberate policy.
+**Stop if either UFW command fails.** The dry run validates the rule without applying it. `prepend` works with an empty ruleset and places the rule before existing user rules of the same IP family, avoiding an earlier user deny rule taking precedence. Repeat for other administrator sources, including IPv6 sources if applicable. Do not use `any` or a catch-all CIDR as the administrator source unless public SSH access is your deliberate policy.
 
 ## 3. Set policies and add required public services
 
@@ -191,5 +191,6 @@ Sources reviewed on 2026-10-15:
 
 - [GreenArrow firewall configuration](https://www.greenarrowemail.com/docs/greenarrow-engine/Getting-Started/Firewall-Configuration)
 - [Ubuntu Server firewall guide](https://ubuntu.com/server/docs/how-to/security/firewalls/)
+- [UFW command reference](https://manpages.debian.org/bookworm/ufw/ufw.8.en.html)
 - [Fail2Ban upstream configuration](https://github.com/fail2ban/fail2ban/blob/master/config/jail.conf)
 - [GreenArrow Fail2Ban integration](https://www.greenarrowemail.com/docs/greenarrow-engine/Server-Management-and-Backups/fail2ban-Integration)
