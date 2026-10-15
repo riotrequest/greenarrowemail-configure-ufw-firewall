@@ -25,3 +25,5 @@ jobs:
           sudo apt-get install --yes ufw
       - name: Validate examples without applying firewall rules
         run: sudo python3 tests/check_readme.py --ufw
+      - name: Check interactive setup safeguards without applying firewall rules
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
