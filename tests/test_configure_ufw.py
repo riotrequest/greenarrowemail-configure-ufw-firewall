@@ -35,12 +35,12 @@ class SetupChecks(unittest.TestCase):
                 setup.tempfile, "mkstemp", return_value=(123, "/root/backup.tar.gz")
             )
         )
-        self.stack.enter_context(patch.object(setup.os, "close"))
 
     def invoke(self, answers, *args):
         with (
             patch.object(sys, "argv", ["configure_ufw.py", *args]),
             patch("builtins.input", side_effect=answers),
+            patch.object(setup.os, "close"),
         ):
             setup.main()
         return [call.args for call in self.run.call_args_list]
@@ -180,6 +180,7 @@ class SetupChecks(unittest.TestCase):
                 },
                 capture_output=True,
                 text=True,
+                timeout=10,
             )
             self.assertEqual(result.returncode, 22)
             self.assertEqual(
