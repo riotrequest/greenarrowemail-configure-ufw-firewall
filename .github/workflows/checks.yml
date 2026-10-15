@@ -1,0 +1,27 @@
+name: Guide checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  commands:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install the distribution UFW package
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ufw
+      - name: Validate examples without applying firewall rules
+        run: sudo python3 tests/check_readme.py --ufw
