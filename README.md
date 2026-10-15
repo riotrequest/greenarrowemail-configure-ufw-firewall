@@ -2,7 +2,23 @@
 
 A practical Ubuntu/Debian host-firewall guide for GreenArrow Engine and Studio. Allow administration first, open the services you actually use, then enable UFW. Optional services get explicit source restrictions.
 
-**Start with the port table and work through the steps.** This replaces the old one-liner, which enabled UFW before allowing SSH and exposed database and monitoring ports publicly. Commands assume Bash and a normal host installation; custom ports, containers, clusters, and upstream firewalls need their own rules.
+Use the interactive one-line setup below or follow the manual steps. Both allow SSH before enabling UFW. Commands assume Bash and a normal host installation; custom ports, containers, clusters, and upstream firewalls need their own rules.
+
+## One-line interactive setup
+
+On the **target Ubuntu/Debian server**, with `curl`, Python 3, and `sudo` available, paste this single line in an interactive Bash terminal:
+
+```bash
+(set -eu; setup=$(mktemp); trap 'rm -f "$setup"' EXIT; curl --fail --silent --show-error --location https://raw.githubusercontent.com/riotrequest/greenarrowemail-configure-ufw-firewall/main/configure_ufw.py -o "$setup"; sudo python3 "$setup")
+```
+
+This downloads [configure_ufw.py](configure_ufw.py) to a temporary file before executing it, so download failures stop the command and prompts keep their terminal input. Review the linked source before running; the URL tracks `main` (replace `main` with a reviewed commit SHA to pin a version).
+
+The setup asks for your **actual SSH port** and trusted administrator IPs/CIDRs (IPv4 and/or IPv6), plus whether to open public SMTP 25 and HTTP/HTTPS 80/443. It rejects invalid ports, catch-all administrator networks, and a public-port selection that would expose SSH. All yes/no options default to **No**; choose outgoing access explicitly or preserve your existing egress policy. It shows the current rules and proposed commands, then requires you to type `APPLY` before installing UFW if needed or changing configuration. It validates the complete plan with UFW dry runs, backs up configuration under `/root/ufw-before-*.tar.gz`, adds SSH first, and keeps UFW's own enable confirmation.
+
+**Keep your SSH session open, have console access, and test a new SSH connection afterward.** Existing rules remain in place, including old public openings; review the migration section below. Cover all required services before applying to an active firewall. Injection, QMQP, POP3, database/monitoring, vendor access, and Fail2Ban use the optional manual steps below; add those required rules before using this setup to enable default-deny. Cloud firewalls, containers, custom before-rules, and shared web/management routes still need the reviews described below.
+
+For a preview only, append `--dry-run` after `sudo python3 "$setup"` in the one-liner. That mode requires UFW already installed and does not install packages, create backups, apply rules, or execute enable.
 
 ## Choose the incoming rules
 
@@ -185,7 +201,7 @@ The SSH jail protects SSH, not GreenArrow SMTP authentication. For SMTP failures
 
 UFW is a host firewall. Cloud security groups, routers, container-published ports, reverse proxies, load balancers, and GreenArrow cluster links require separate review. In particular, do not assume a host INPUT rule governs traffic forwarded to a container.
 
-CI checks Bash syntax and SSH-before-enable ordering in this README. It validates rule additions, deletions, and default policies using **real `ufw --dry-run`** with IPv4 and IPv6 examples on disposable Ubuntu runners, and verifies UFW configuration files stay unchanged. It deliberately does not execute `enable`: UFW's enable path can write its persistent enabled flag even with `--dry-run`. These checks do not prove remote reachability. The repository's Git history was also scanned for secrets during this update.
+CI checks Bash syntax and SSH-before-enable ordering in this README. It validates the manual rules and interactive setup's generated rules using **real `ufw --dry-run`** with IPv4 and IPv6 examples on disposable Ubuntu runners, and verifies UFW configuration files stay unchanged. Tests also cover input validation, cancellation, preview mode, backup/validation failures, command ordering, and a failed launcher download. CI deliberately does not execute `enable`: UFW's enable path can write its persistent enabled flag even with `--dry-run`. These checks do not prove remote reachability. The repository's Git history was also scanned for secrets during this update.
 
 Sources reviewed on 2026-10-15:
 
