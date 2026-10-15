@@ -58,13 +58,11 @@ sudo ufw prepend allow in proto tcp from "$ADMIN_SOURCE" to any port "$SSH_PORT"
 
 **Stop if either UFW command fails.** The dry run validates the rule without applying it. `prepend` works with an empty ruleset and places the rule before existing user rules of the same IP family, avoiding an earlier user deny rule taking precedence. Repeat for other administrator sources, including IPv6 sources if applicable. Do not use `any` or a catch-all CIDR as the administrator source unless public SSH access is your deliberate policy.
 
-## 3. Set policies and add required public services
+## 3. Add required public services
 
 Allow outgoing traffic unless you maintain a complete egress policy. GreenArrow also needs outbound DNS over **both UDP and TCP**, SMTP, updates, relay connections, and any integration services you use; outbound-only needs do not justify opening those ports inbound.
 
 ```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
 sudo ufw allow in 25/tcp comment 'Incoming SMTP and bounces'
 ```
 
@@ -121,10 +119,12 @@ These are service-specific openings, not a blanket vendor whitelist. Never make 
 
 ## 5. Review, enable, and test a fresh connection
 
-Review configured rules before enabling. `show added` lists configured user rules even while UFW is inactive; `status numbered` becomes useful once active.
+Review configured rules before changing default policies or enabling. Stage every required allow rule first, especially if UFW is already active. `show added` lists configured user rules even while UFW is inactive; `status numbered` becomes useful once active. If you intentionally restrict outgoing access, preserve that policy and verify your required destinations instead of changing it to allow outgoing.
 
 ```bash
 sudo ufw show added
+sudo ufw default allow outgoing
+sudo ufw default deny incoming
 sudo ufw enable
 sudo ufw status verbose
 sudo ufw status numbered
