@@ -185,7 +185,7 @@ The SSH jail protects SSH, not GreenArrow SMTP authentication. For SMTP failures
 
 UFW is a host firewall. Cloud security groups, routers, container-published ports, reverse proxies, load balancers, and GreenArrow cluster links require separate review. In particular, do not assume a host INPUT rule governs traffic forwarded to a container.
 
-CI checks Bash syntax in this README and validates its firewall mutation commands using **real `ufw --dry-run`** on disposable Ubuntu runners. It does not apply rules or prove remote reachability. The repository's Git history was also scanned for secrets during this update.
+CI checks Bash syntax and SSH-before-enable ordering in this README. It validates rule additions, deletions, and default policies using **real `ufw --dry-run`** with IPv4 and IPv6 examples on disposable Ubuntu runners, and verifies UFW configuration files stay unchanged. It deliberately does not execute `enable`: UFW's enable path can write its persistent enabled flag even with `--dry-run`. These checks do not prove remote reachability. The repository's Git history was also scanned for secrets during this update.
 
 Sources reviewed on 2026-10-15:
 

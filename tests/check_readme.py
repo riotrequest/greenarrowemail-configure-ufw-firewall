@@ -103,10 +103,14 @@ def main():
             "$SSH_PORT": "2222",
         }
         for command in mutations:
+            # UFW's enable path writes ENABLED=yes even with --dry-run.
+            # Check its syntax/order above; never execute it in validation.
+            if command == ["enable"]:
+                continue
             resolved = [variables.get(token, token) for token in command]
             assert not any("$" in token for token in resolved), resolved
-            # Every execution is a UFW dry run, including enable and delete.
-            confirmation = ["--force"] if resolved[0] in {"enable", "delete"} else []
+            # Deletion needs confirmation even when using --dry-run.
+            confirmation = ["--force"] if resolved[0] == "delete" else []
             result = subprocess.run(
                 ["ufw", "--dry-run", *confirmation, *resolved],
                 text=True,
@@ -118,6 +122,12 @@ def main():
             assert result.returncode == 0, (
                 f"{resolved}: {result.stdout}\n{result.stderr}"
             )
+            after = configuration_hashes()
+            changed = [
+                path for path in before.keys() | after.keys()
+                if before.get(path) != after.get(path)
+            ]
+            assert not changed, f"Dry run {resolved} changed configuration: {changed}"
             count += 1
     assert before == configuration_hashes(), "Dry runs changed UFW configuration"
     print(f"Real UFW validation passed: {count} dry runs; configuration unchanged")
