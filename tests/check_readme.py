@@ -106,8 +106,9 @@ def main():
             resolved = [variables.get(token, token) for token in command]
             assert not any("$" in token for token in resolved), resolved
             # Every execution is a UFW dry run, including enable and delete.
+            confirmation = ["--force"] if resolved[0] in {"enable", "delete"} else []
             result = subprocess.run(
-                ["ufw", "--dry-run", "--force", *resolved],
+                ["ufw", "--dry-run", *confirmation, *resolved],
                 text=True,
                 capture_output=True,
                 timeout=30,
