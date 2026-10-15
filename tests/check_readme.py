@@ -6,6 +6,7 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -93,6 +94,10 @@ def main():
     if not args.ufw:
         return
     assert os.geteuid() == 0, "UFW validation needs root on a disposable runner"
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from configure_ufw import build_rules
+
+    mutations.extend(build_rules("1314", "192.0.2.10,2001:db8::10", True, True, True))
     before = configuration_hashes()
     count = 0
     for source in ("192.0.2.10/32", "2001:db8::10/128"):
